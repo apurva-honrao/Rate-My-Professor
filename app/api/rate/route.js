@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Pinecone } from '@pinecone-database/pinecone';
+import { HuggingFaceTransformersEmbeddings } from "@langchain/community/embeddings/hf_transformers";
 import OpenAI from "openai";
 
 
@@ -14,8 +15,8 @@ Provide a brief summary of each professor, including their rating, a key highlig
 Always aim to provide the most relevant and accurate recommendations to help students make informed decisions.
 `;
 
-const pineconeIndexName = 'ragbot2';
-const pineconeNameSpaceName = 'prof-ratings'
+const pineconeIndexName = 'professor-rag';
+const pineconeNameSpaceName = 'kaggle-professor-dataset'
 
 export async function POST(req) {
 
@@ -26,40 +27,47 @@ export async function POST(req) {
     const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
     const index = pc.index(pineconeIndexName).namespace(pineconeNameSpaceName);
 
-    // openai clien
+    // openai client
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
     // Last message sent in the chatbot
     const text = data[data.length - 1].content
 
-    // create embeddings of the text
-    const embedding = await openai.embeddings.create({
-        model: "text-embedding-3-small",
-        input: text,
-        encoding_format: 'float',
+
+    const model = new HuggingFaceTransformersEmbeddings({
+        model: "Xenova/all-mpnet-base-v2"
     });
+    const res = await model.embedQuery(text);
+
+    // create embeddings of the text (OPEN AI)
+    // const embedding = await openai.embeddings.create({
+    //     model: "text-embedding-3-small",
+    //     input: text,
+    //     encoding_format: 'float',
+    // });
 
     // query the index
     const results = await index.query({
         topK: 3,
         includeMetadata: true,
-        vector: embedding.data[0].embedding
+        vector: res
     });
 
     // appending query results to the last chatbot message.
     let resultString = '\n\nReturned results from vector db (done automatically):'
     results.matches.forEach((match) => {
-        console.log(match)
         resultString +=
             `
+        Course_id: ${match.metadata.course_id}
         Professor: ${match.metadata.professor}
+        Department: ${match.metadata.department}
         Quality: ${match.metadata.quality}
         Difficulty: ${match.metadata.difficulty}
-        Department: ${match.metadata.department}
-        Content: ${match.page_content}
+        Comment: ${match.metadata.comment}
         \n\n
         `
     });
+    console.log(resultString);
 
     // appending query results to the last chatbot message.
     const lastMessage = data[data.length - 1];
