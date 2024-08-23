@@ -1,12 +1,12 @@
 "use client";
-import { Box, Button, Stack, Typography } from "@mui/material";
-import Image from "next/image";
+import { Box, Button, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const router = new useRouter();
+  const router = useRouter();
+
   const chatbotOpen = () => {
-    router.push("/chatbot");
+    router.push("/ChatPage");
   };
 
   return (
@@ -14,9 +14,14 @@ export default function Home() {
       width="100%"
       height="100vh"
       display="flex"
-      bgcolor="beige"
       alignItems="center"
       justifyContent="center"
+      sx={{
+        backgroundImage: "url('/images/background.webp')",
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
+      }}
     >
       <Box
         display="flex"
@@ -24,7 +29,7 @@ export default function Home() {
         alignItems="center"
         spacing={2}
       >
-        <Typography variant="h3" mb={2}>
+        <Typography variant="h3" mb={2} color="white">
           Welcome to ProfTips!
         </Typography>
         <Box width="fit-content" onClick={chatbotOpen}>
