@@ -4,17 +4,7 @@ import Chatbot from "../components/chatbot";
 
 const ChatPage = () => {
   return (
-    <Box
-      sx={{
-        backgroundImage: "url('/images/background.webp')",
-        backgroundSize: "cover",
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "center",
-        height: "100vh",
-        minHeight: "100vh",
-        overflow: "hidden",
-      }}
-    >
+    <Box>
       <Chatbot />
     </Box>
   );

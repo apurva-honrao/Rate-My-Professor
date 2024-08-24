@@ -11,6 +11,58 @@ const Chatbot = () => {
   ]);
   const [input, setInput] = useState("");
 
+  const handleSend = () => {
+    if (input.trim()) {
+      setMessages((messages) => [
+        ...messages,
+        { text: input, sender: "user" },
+        { text: "", sender: "bot" },
+      ]);
+
+      const payload = [
+        ...messages.map((msg) => ({
+          role: msg.sender === "user" ? "user" : "assistant",
+          content: msg.text,
+        })),
+        { role: "user", content: input },
+      ];
+
+      const response = fetch("/api/rate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }).then(async (res) => {
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+
+        let result = "";
+        return reader.read().then(function processText({ done, value }) {
+          if (done) {
+            return result;
+          }
+          const text = decoder.decode(value || new Int8Array(), {
+            stream: true,
+          });
+          setMessages((messages) => {
+            let lastMessage = messages[messages.length - 1];
+            let otherMessages = messages.slice(0, messages.length - 1);
+            return [
+              ...otherMessages,
+              {
+                ...lastMessage,
+                content: lastMessage.content + text,
+              },
+            ];
+          });
+          return reader.read().then(processText);
+        });
+      });
+      setInput(""); // Clear input field
+    }
+  };
+
   return (
     <Box
       width="100%"
@@ -19,23 +71,34 @@ const Chatbot = () => {
       flexDirection="column"
       alignItems="center"
       justifyContent="flex-start"
-      bgcolor="transparent"
+      sx={{
+        color: "white",
+      }}
     >
-      <Typography variant="h3" mt={3} mb={3}>
+      <Typography
+        variant="h3"
+        mt={3}
+        mb={3}
+        sx={{
+          color: "white",
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+        }}
+      >
         ProfTips Chatbot
       </Typography>
       <Box
         width="100%"
         maxWidth="800px"
         height="70vh"
-        bgcolor="rgba(255, 255, 255, 0.5)"
+        bgcolor="rgba(255, 255, 255, 0.1)"
         borderRadius="12px"
-        boxShadow="0 4px 20px rgba(0, 0, 0, 0.1)"
+        boxShadow="0 4px 20px rgba(0, 0, 0, 0.3)"
         p={3}
         overflow="auto"
         sx={{
           display: "flex",
           flexDirection: "column",
+          backdropFilter: "blur(10px)",
         }}
       >
         {messages.map((message, index) => (
@@ -49,6 +112,7 @@ const Chatbot = () => {
               p: 2,
               borderRadius: "10px",
               wordWrap: "break-word",
+              color: "#000",
             }}
           >
             <Typography variant="body1">{message.text}</Typography>
@@ -70,11 +134,27 @@ const Chatbot = () => {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           sx={{
+            bgcolor: "rgba(255, 255, 255, 0.2)",
+            color: "white",
             borderRadius: "8px",
             mr: 2,
+            input: {
+              color: "white",
+            },
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: "rgba(255, 255, 255, 0.6)",
+              },
+              "&:hover fieldset": {
+                borderColor: "rgba(255, 255, 255, 0.8)",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "rgba(255, 255, 255, 1)",
+              },
+            },
           }}
         />
-        <Button variant="contained" color="primary">
+        <Button variant="contained" color="primary" onClick={handleSend}>
           Send
         </Button>
       </Box>

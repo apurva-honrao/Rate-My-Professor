@@ -50,18 +50,25 @@ const theme = createTheme({
           color: "#ffffff",
           borderRadius: "8px",
           padding: "10px 20px",
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
           "&:hover": {
             backgroundColor: "#1a1d27",
+            boxShadow: "0px 4px 16px rgba(0, 0, 0, 0.4)",
           },
           "&:active": {
             backgroundColor: "#000000",
+            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.5)",
           },
         },
         containedSecondary: {
           backgroundColor: "#E4E6EF",
           color: "#2B2E3A",
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
           "&:hover": {
             backgroundColor: "#d1d3d9",
+            boxShadow: "0px 4px 16px rgba(0, 0, 0, 0.4)",
           },
         },
       },

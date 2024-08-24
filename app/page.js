@@ -16,18 +16,14 @@ export default function Home() {
       display="flex"
       alignItems="center"
       justifyContent="center"
-      sx={{
-        backgroundImage: "url('/images/background.webp')",
-        backgroundSize: "cover",
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "center",
-      }}
+      overflow="hidden"
     >
       <Box
         display="flex"
         flexDirection="column"
         alignItems="center"
         spacing={2}
+        zIndex={1}
       >
         <Typography variant="h3" mb={2} color="white">
           Welcome to ProfTips!
