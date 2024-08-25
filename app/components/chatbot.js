@@ -2,6 +2,7 @@
 import { Box, Button, Typography, TextField } from "@mui/material";
 import { useState } from "react";
 import SubmitProfessor from "./submitProfessor";
+import ReactMarkdown from 'react-markdown'
 
 const Chatbot = () => {
   const [messages, setMessages] = useState([
@@ -115,20 +116,24 @@ const Chatbot = () => {
             sx={{
               maxWidth: "75%",
               bgcolor: message.role === "user" ? "#DCF8C6" : "#E5E5EA",
-              p: 2,
+              px: 5,
+              py: 2,
               borderRadius: "10px",
               wordWrap: "break-word",
               color: "#000",
             }}
           >
-            {" "}
+            <ReactMarkdown>
+              {message.content}
+            </ReactMarkdown>
+            {/* {" "}
             <Typography
               variant="body1"
               component="div"
               dangerouslySetInnerHTML={{
                 __html: formatMessageContent(message.content),
               }}
-            />
+            /> */}
           </Box>
         ))}
       </Box>
