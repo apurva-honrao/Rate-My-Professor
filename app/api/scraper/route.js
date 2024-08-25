@@ -1,8 +1,20 @@
 import chromium from "@sparticuz/chromium-min";
 import puppeteer from "puppeteer-core";
+import { Document } from "langchain/document";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { HuggingFaceTransformersEmbeddings } from "@langchain/community/embeddings/hf_transformers";
+import { PineconeStore } from "@langchain/pinecone";
+import { get_encoding } from "tiktoken";
+import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
 
 chromium.setHeadlessMode = true;
 chromium.setGraphicsMode = false;
+
+const tokenizer = get_encoding('p50k_base');
+const tiktokenLen = (text) => {
+  const tokens = tokenizer.encode(text);
+  return tokens.length;
+}
 
 export async function POST(request) {
   try {
@@ -25,11 +37,11 @@ export async function POST(request) {
       args: isLocal
         ? puppeteer.defaultArgs()
         : [
-            ...chromium.args,
-            "--hide-scrollbars",
-            "--incognito",
-            "--no-sandbox",
-          ],
+          ...chromium.args,
+          "--hide-scrollbars",
+          "--incognito",
+          "--no-sandbox",
+        ],
       defaultViewport: chromium.defaultViewport,
       executablePath:
         process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath()),
@@ -121,6 +133,45 @@ export async function POST(request) {
     });
 
     await browser.close();
+
+    // Logic to add the professor data into the Pinecone Index.
+    let documents = [];
+    for (let i = 0; i < data.length; i++) {
+      documents.push(
+        new Document({
+          pageContent: `Professorr: ${data[i].professor}
+          Department: ${data[i].department}
+          Course ID: ${data[i].course_id}
+          Quality: ${data[i].quality}
+          Difficulty: ${data[i].difficulty}
+          Comment: ${data[i].comment}`,
+          metadata: {
+            professor: data[i].professor,
+            department: data[i].department,
+            course_id: data[i].course_id,
+            quality: data[i].quality,
+            difficulty: data[i].difficulty,
+            comment: data[i].comment,
+          },
+        })
+      )
+    }
+
+    const textSplitter = new RecursiveCharacterTextSplitter({
+      chunkSize: 2000, chunkOverlap: 100, lengthFunction: tiktokenLen
+    });
+    const texts = await textSplitter.splitDocuments(documents);
+
+    const pc = new PineconeClient();
+    const pineconeIndex = pc.Index("professor-rag")
+    const vectorStore = await PineconeStore.fromExistingIndex(
+      new HuggingFaceTransformersEmbeddings({ model: "Xenova/all-mpnet-base-v2" }), {
+      pineconeIndex, namespace: "kaggle-professor-dataset"
+    }
+    );
+
+    await vectorStore.addDocuments(texts);
+    console.log("Added to Pinecone Index successfully");
 
     // Return the scraped data
     return new Response(JSON.stringify(data), {
