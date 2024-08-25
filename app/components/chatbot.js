@@ -63,6 +63,10 @@ const Chatbot = () => {
     }
   };
 
+  const formatMessageContent = (content) => {
+    return content.replace(/\n/g, "<br />");
+  };
+
   return (
     <Box
       width="100%"
@@ -115,7 +119,14 @@ const Chatbot = () => {
               color: "#000",
             }}
           >
-            <Typography variant="body1">{message.content}</Typography>
+            {" "}
+            <Typography
+              variant="body1"
+              component="div"
+              dangerouslySetInnerHTML={{
+                __html: formatMessageContent(message.content),
+              }}
+            />
           </Box>
         ))}
       </Box>
