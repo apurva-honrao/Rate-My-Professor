@@ -5,8 +5,8 @@ import { useState } from "react";
 const Chatbot = () => {
   const [messages, setMessages] = useState([
     {
-      text: "Welcome to ProfTips Chatbot! How can I assist you today?",
-      sender: "bot",
+      role: "assistant",
+      content: "Welcome to ProfTips Chatbot! How can I assist you today?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -15,14 +15,14 @@ const Chatbot = () => {
     if (input.trim()) {
       setMessages((messages) => [
         ...messages,
-        { text: input, sender: "user" },
-        { text: "", sender: "bot" },
+        { content: input, role: "user" },
+        { content: "", role: "assistant" },
       ]);
 
       const payload = [
         ...messages.map((msg) => ({
-          role: msg.sender === "user" ? "user" : "assistant",
-          content: msg.text,
+          role: msg.role === "user" ? "user" : "assistant",
+          content: msg.content,
         })),
         { role: "user", content: input },
       ];
@@ -61,6 +61,10 @@ const Chatbot = () => {
       });
       setInput(""); // Clear input field
     }
+  };
+
+  const formatMessageContent = (content) => {
+    return content.replace(/\n/g, "<br />");
   };
 
   return (
@@ -105,17 +109,24 @@ const Chatbot = () => {
           <Box
             key={index}
             mb={2}
-            alignSelf={message.sender === "user" ? "flex-end" : "flex-start"}
+            alignSelf={message.role === "user" ? "flex-end" : "flex-start"}
             sx={{
               maxWidth: "75%",
-              bgcolor: message.sender === "user" ? "#DCF8C6" : "#E5E5EA",
+              bgcolor: message.role === "user" ? "#DCF8C6" : "#E5E5EA",
               p: 2,
               borderRadius: "10px",
               wordWrap: "break-word",
               color: "#000",
             }}
           >
-            <Typography variant="body1">{message.text}</Typography>
+            {" "}
+            <Typography
+              variant="body1"
+              component="div"
+              dangerouslySetInnerHTML={{
+                __html: formatMessageContent(message.content),
+              }}
+            />
           </Box>
         ))}
       </Box>
