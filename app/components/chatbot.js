@@ -1,6 +1,7 @@
 "use client";
 import { Box, Button, Typography, TextField } from "@mui/material";
 import { useState } from "react";
+import SubmitProfessor from "./submitProfessor";
 
 const Chatbot = () => {
   const [messages, setMessages] = useState([
@@ -90,10 +91,11 @@ const Chatbot = () => {
       >
         ProfTips Chatbot
       </Typography>
+      <SubmitProfessor />
       <Box
         width="100%"
         maxWidth="800px"
-        height="70vh"
+        height="65vh"
         bgcolor="rgba(255, 255, 255, 0.1)"
         borderRadius="12px"
         boxShadow="0 4px 20px rgba(0, 0, 0, 0.3)"

@@ -47,34 +47,6 @@ export default function Home() {
         <Box width="fit-content" onClick={chatbotOpen}>
           <Button variant="contained">Chat with bot</Button>
         </Box>
-
-        {/* Input field for the URL */}
-        <TextField
-          label="Enter Professor URL"
-          variant="outlined"
-          fullWidth
-          value={url}
-          onChange={handleUrlChange}
-          sx={{ mb: 2 }}
-        />
-
-        {/* New button to test getTest */}
-
-        <Box mt={2} width="fit-content" onClick={getTest}>
-          <Button variant="contained" color="primary">
-            Test API
-          </Button>
-        </Box>
-
-        {/* Display the result */}
-
-        {results && (
-          <Box mt={2}>
-            <Typography variant="body1">API Response:</Typography>
-
-            <pre>{JSON.stringify(results, null, 2)}</pre>
-          </Box>
-        )}
       </Box>
     </Box>
   );

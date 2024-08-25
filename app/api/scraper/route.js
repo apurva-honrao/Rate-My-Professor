@@ -134,6 +134,10 @@ export async function POST(request) {
 
     await browser.close();
 
+    if (data.length === 0) {
+      throw new Error("No data found");
+    }
+
     // Logic to add the professor data into the Pinecone Index.
     let documents = [];
     for (let i = 0; i < data.length; i++) {
