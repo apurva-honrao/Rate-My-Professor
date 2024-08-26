@@ -10,11 +10,11 @@ import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
 chromium.setHeadlessMode = true;
 chromium.setGraphicsMode = false;
 
-const tokenizer = get_encoding('p50k_base');
+const tokenizer = get_encoding("p50k_base");
 const tiktokenLen = (text) => {
   const tokens = tokenizer.encode(text);
   return tokens.length;
-}
+};
 
 export async function POST(request) {
   try {
@@ -37,14 +37,17 @@ export async function POST(request) {
       args: isLocal
         ? puppeteer.defaultArgs()
         : [
-          ...chromium.args,
-          "--hide-scrollbars",
-          "--incognito",
-          "--no-sandbox",
-        ],
+            ...chromium.args,
+            "--hide-scrollbars",
+            "--incognito",
+            "--no-sandbox",
+          ],
       defaultViewport: chromium.defaultViewport,
       executablePath:
-        process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath()),
+        process.env.CHROME_EXECUTABLE_PATH ||
+        (await chromium.executablePath(
+          "https://ratemyprofessor.blob.core.windows.net/ratemyprof/chromium-v127.0.0-pack.tar"
+        )),
       headless: chromium.headless,
     });
 
@@ -158,20 +161,26 @@ export async function POST(request) {
             comment: data[i].comment,
           },
         })
-      )
+      );
     }
 
     const textSplitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 2000, chunkOverlap: 100, lengthFunction: tiktokenLen
+      chunkSize: 2000,
+      chunkOverlap: 100,
+      lengthFunction: tiktokenLen,
     });
     const texts = await textSplitter.splitDocuments(documents);
 
     const pc = new PineconeClient();
-    const pineconeIndex = pc.Index("professor-rag")
+    const pineconeIndex = pc.Index("professor-rag");
     const vectorStore = await PineconeStore.fromExistingIndex(
-      new HuggingFaceTransformersEmbeddings({ model: "Xenova/all-mpnet-base-v2" }), {
-      pineconeIndex, namespace: "kaggle-professor-dataset"
-    }
+      new HuggingFaceTransformersEmbeddings({
+        model: "Xenova/all-mpnet-base-v2",
+      }),
+      {
+        pineconeIndex,
+        namespace: "kaggle-professor-dataset",
+      }
     );
 
     await vectorStore.addDocuments(texts);
