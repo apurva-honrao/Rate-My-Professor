@@ -4,13 +4,13 @@ import { Document } from "langchain/document";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { HuggingFaceTransformersEmbeddings } from "@langchain/community/embeddings/hf_transformers";
 import { PineconeStore } from "@langchain/pinecone";
-import { get_encoding } from "tiktoken";
+import { getEncoding } from "js-tiktoken";
 import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
 
 chromium.setHeadlessMode = true;
 chromium.setGraphicsMode = false;
 
-const tokenizer = get_encoding("p50k_base");
+const tokenizer = getEncoding("p50k_base");
 const tiktokenLen = (text) => {
   const tokens = tokenizer.encode(text);
   return tokens.length;
@@ -37,11 +37,11 @@ export async function POST(request) {
       args: isLocal
         ? puppeteer.defaultArgs()
         : [
-            ...chromium.args,
-            "--hide-scrollbars",
-            "--incognito",
-            "--no-sandbox",
-          ],
+          ...chromium.args,
+          "--hide-scrollbars",
+          "--incognito",
+          "--no-sandbox",
+        ],
       defaultViewport: chromium.defaultViewport,
       executablePath:
         process.env.CHROME_EXECUTABLE_PATH ||
