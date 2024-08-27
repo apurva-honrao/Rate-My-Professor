@@ -1,4 +1,4 @@
-import chromium from "@sparticuz/chromium-min";
+import chromium from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
 import { Document } from "langchain/document";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
@@ -45,10 +45,9 @@ export async function POST(request) {
       defaultViewport: chromium.defaultViewport,
       executablePath:
         process.env.CHROME_EXECUTABLE_PATH ||
-        (await chromium.executablePath(
-          "https://ratemyprofessor.blob.core.windows.net/ratemyprof/chromium-v127.0.0-pack.tar"
-        )),
+        await chromium.executablePath(),
       headless: chromium.headless,
+      ignoreHTTPSErrors: true,
     });
 
     const page = await browser.newPage();

@@ -2,7 +2,7 @@
 const nextConfig = {
     // Override the default webpack configuration
     experimental: {
-        serverComponentsExternalPackages: ['sharp', 'onnxruntime-node'],
+        serverComponentsExternalPackages: ['sharp', 'onnxruntime-node', 'puppeteer-core', '@sparticuz/chromium'],
     },
 };
 
